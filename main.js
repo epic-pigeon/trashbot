@@ -10,9 +10,11 @@ const Users = {
     },
     addUser(chat_id, obj) {
         this._users[chat_id] = obj;
+        this.saveFile();
     },
     deleteUser(chat_id) {
         delete this._users[chat_id];
+        this.saveFile();
     },
     getUser(chat_id) {
         return this._users[chat_id];
