@@ -2,6 +2,8 @@ const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
 const token = "913804810:AAFxSN8NDv43zOSeI8rFIOpa8bYhWfhuNEk";
 const Bot = new TelegramBot(token, {polling: true});
+const limit = 30;
+const time = 60_000;
 const Users = {
     _users: {},
     _filename: ".user_saves",
@@ -32,7 +34,8 @@ const Users = {
     loadFile() {
         try {
             this._users = JSON.parse(fs.readFileSync(this._filename, {}).toString());
-        } catch (e) {}
+        } catch (e) {
+        }
     }
 };
 
@@ -40,22 +43,41 @@ Users.loadFile();
 
 Bot.on("text", msg => {
     let chat_id = msg.chat.id;
+
     if (msg.chat.type !== "private") {
         Bot.sendMessage(chat_id, "иди нахрен, только лс");
     } else {
         if (Users.hasOwnProperty(chat_id)) {
+            let user = Users.getUser(chat_id);
             if (msg.text.startsWith("/unsub")) {
                 Bot.sendMessage(chat_id, "ну и иди нафиг(((");
                 Users.deleteUser(chat_id);
             } else {
-                Users.forEach((user_chat_id, user) => {
-                    if (user_chat_id != chat_id) Bot.sendMessage(user_chat_id, msg.text);
-                });
+                if (user.timestamp + time < +Date.now()) {
+                    user.timestamp = +Date.now();
+                    user.msg_count = 0;
+                }
+                if (user.msg_count > limit) {
+                    Bot.sendMessage(chat_id, "ты отправил слишком много сообщений, жди еще " + (+Date.now() - user.timestamp) / 1000 + " секунд");
+                } else {
+                    Users.forEach((user_chat_id, current_user) => {
+                        if (user_chat_id != chat_id) {
+                            let options = {};
+                            if (typeof msg.reply_to_message === "object") {
+                                options.reply_to_message_id = msg.reply_to_message.message_id;
+                            }
+                            Bot.sendMessage(user_chat_id, msg.text, options);
+                        }
+                    });
+                }
             }
         } else {
             if (msg.text.startsWith("/start")) {
                 Bot.sendMessage(chat_id, "Добро пожаловать в Мусорки*!\nЧтобы отписаться, напиши /unsub");
-                Users.addUser(chat_id, {});
+                Users.addUser(chat_id, {
+                    timestamp: +Date.now(),
+                    msg_count: 0,
+                });
             } else {
                 Bot.sendMessage(chat_id, "Вы либо не подписаны, либо отписались.\nОтправьте /start чтобы подписаться");
             }
