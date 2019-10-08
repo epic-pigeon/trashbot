@@ -64,6 +64,7 @@ Bot.on("text", msg => {
                         if (user_chat_id != chat_id) {
                             let options = {};
                             if (typeof msg.reply_to_message === "object") {
+                                console.log(msg.reply_to_message);
                                 options.reply_to_message_id = msg.reply_to_message.message_id;
                             }
                             Bot.sendMessage(user_chat_id, msg.text, options);
