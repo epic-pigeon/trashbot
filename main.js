@@ -73,6 +73,7 @@ Bot.on("text", msg => {
                             if (typeof msg.reply_to_message === "object") {
                                 console.log(user.reply_table);
                                 console.log(current_user.reply_table);
+                                console.log(msg.reply_to_message);
                                 options.reply_to_message_id = getUserWrapperId(current_user,
                                     user.reply_table[msg.reply_to_message.message_id] || msg.reply_to_message.message_id);
                                 if (!options.reply_to_message_id) delete options.reply_to_message_id;
