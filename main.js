@@ -46,8 +46,8 @@ Bot.on("text", msg => {
                 Bot.sendMessage(chat_id, "ну и иди нафиг(((");
                 Users.deleteUser(chat_id);
             } else {
-                Users.forEach((chat_id, user) => {
-                    Bot.sendMessage(chat_id, msg.text);
+                Users.forEach((user_chat_id, user) => {
+                    if (user_chat_id != chat_id) Bot.sendMessage(user_chat_id, msg.text);
                 });
             }
         } else {
