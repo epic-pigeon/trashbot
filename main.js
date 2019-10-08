@@ -39,6 +39,13 @@ const Users = {
     }
 };
 
+function getUserWrapperId(user, msg_id) {
+    for (let prop in user.reply_table) if (user.reply_table.hasOwnProperty(prop)) {
+        if (user.reply_table[prop] == msg_id) return prop;
+    }
+    return null;
+}
+
 Users.loadFile();
 
 Bot.on("text", msg => {
@@ -64,10 +71,13 @@ Bot.on("text", msg => {
                         if (user_chat_id != chat_id) {
                             let options = {};
                             if (typeof msg.reply_to_message === "object") {
-                                console.log(msg.reply_to_message);
-                                options.reply_to_message_id = msg.reply_to_message.message_id;
+                                options.reply_to_message_id = getUserWrapperId(current_user,
+                                    user.reply_table[msg.reply_to_message.message_id] || msg.reply_to_message.message_id);
+                                if (!options.reply_to_message_id) delete options.reply_to_message_id;
                             }
-                            Bot.sendMessage(user_chat_id, msg.text, options);
+                            Bot.sendMessage(user_chat_id, msg.text, options).then(r => {
+                                current_user.reply_table[r.message_id] = msg.message_id;
+                            });
                         }
                     });
                 }
@@ -78,6 +88,7 @@ Bot.on("text", msg => {
                 Users.addUser(chat_id, {
                     timestamp: +Date.now(),
                     msg_count: 0,
+                    reply_table: {}
                 });
             } else {
                 Bot.sendMessage(chat_id, "Вы либо не подписаны, либо отписались.\nОтправьте /start чтобы подписаться");
