@@ -3,7 +3,7 @@ const fs = require("fs");
 const token = "913804810:AAFxSN8NDv43zOSeI8rFIOpa8bYhWfhuNEk";
 const Bot = new TelegramBot(token, {polling: true});
 const limit = 30;
-const time = 60_000;
+const time = 60 * 1000;
 const Users = {
     _users: {},
     _filename: ".user_saves",
