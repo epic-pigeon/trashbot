@@ -76,6 +76,7 @@ Bot.on("text", msg => {
                                 if (!options.reply_to_message_id) delete options.reply_to_message_id;
                             }
                             Bot.sendMessage(user_chat_id, msg.text, options).then(r => {
+                                console.log(r);
                                 current_user.reply_table[r.message_id] = msg.message_id;
                             });
                         }
