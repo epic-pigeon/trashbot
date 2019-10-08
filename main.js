@@ -53,8 +53,12 @@ Bot.on("text", msg => {
                 });
             }
         } else {
-            Bot.sendMessage(chat_id, "Добро пожаловать в Мусорки*!\nЧтобы отписаться, напиши /unsub");
-            Users.addUser(chat_id, {});
+            if (msg.text.startsWith("/start")) {
+                Bot.sendMessage(chat_id, "Добро пожаловать в Мусорки*!\nЧтобы отписаться, напиши /unsub");
+                Users.addUser(chat_id, {});
+            } else {
+                Bot.sendMessage(chat_id, "Вы либо не подписаны, либо отписались.\nОтправьте /start чтобы подписаться");
+            }
         }
     }
 });
