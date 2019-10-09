@@ -334,7 +334,11 @@ Bot.on("photo", msg => {
                     user_chat_id,
                     file_id,
                     options
-                );
+                ).then(r => {
+                    //console.log("sent message:");
+                    //console.log(r);
+                    current_user.reply_table[r.message_id] = msg.message_id;
+                });
             }
         });
     }
