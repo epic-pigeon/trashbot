@@ -91,6 +91,11 @@ const CommandProcessor = new (require("./commandprocessor")) ([
             Bot.sendMessage(user.chat_id, "ну и иди нафиг(((", {
                 reply_to_message_id: msg.message_id
             });
+            Users.forEach((k_user_chat_id, current_user) => {
+                if (current_user.member_leave_notification) {
+                    Bot.sendMessage(k_user_chat_id, "бомж " + stringFromUser(Users.getUser(user_chat_id)) + " поднялся и покинул Мусорки");
+                }
+            });
             Users.deleteUser(user.chat_id);
         }
     },
@@ -214,6 +219,20 @@ const CommandProcessor = new (require("./commandprocessor")) ([
                 });
             }
         }
+    },
+    {
+        name: "member_leave_notification",
+        description: "уведомление о бомжах, покинувших Мусорки",
+        adminOnly: false,
+        usage: "/member_leave_notification true/false",
+        action: function (msg, user, arguments, self) {
+            if (arguments.length === 1) {
+                user.member_leave_notification = arguments[0].value;
+                Bot.sendMessage(user.chat_id, "настройки изменены!", {
+                    reply_to_message_id: msg.message_id
+                });
+            }
+        }
     }
 ]);
 
@@ -298,7 +317,12 @@ Bot.on("text", msg => {
                     }).catch(e => {
                         //console.log(e);
                         if (e.response.body.description === "Forbidden: bot was blocked by the user") {
-                            Bot.sendMessage(user_chat_id, "ты заблочил бота, иди нахрен");
+                            Bot.sendMessage(user_chat_id, "ты заблочил бота и тебя удалили");
+                            Users.forEach((k_user_chat_id, current_user) => {
+                                if (current_user.member_leave_notification) {
+                                    Bot.sendMessage(k_user_chat_id, "бомж " + stringFromUser(Users.getUser(user_chat_id)) + " спился и сдох");
+                                }
+                            });
                             Users.deleteUser(user_chat_id);
                         }
                     });
@@ -346,10 +370,13 @@ Bot.on("photo", msg => {
                     current_user.reply_table[r.message_id] = msg.message_id;
                 }).catch(e => {
                     //console.log(e);
-                    if (e.response.body.description === "Forbidden: bot was blocked by the user") {
-                        Bot.sendMessage(user_chat_id, "ты заблочил бота, иди нахрен");
-                        Users.deleteUser(user_chat_id);
-                    }
+                    Bot.sendMessage(user_chat_id, "ты заблочил бота и тебя удалили");
+                    Users.forEach((k_user_chat_id, current_user) => {
+                        if (current_user.member_leave_notification) {
+                            Bot.sendMessage(k_user_chat_id, "бомж " + stringFromUser(Users.getUser(user_chat_id)) + " спился и сдох");
+                        }
+                    });
+                    Users.deleteUser(user_chat_id);
                 });
             }
         });
