@@ -306,8 +306,7 @@ Bot.on("photo", msg => {
         let chat_id = msg.chat.id;
         let user = Users.getUser(chat_id);
 
-        let photos = msg.photo;
-        console.log(photos);
+        let file_id = msg.photo[0].file_id;
 
         Users.forEach((user_chat_id, current_user) => {
             if (user_chat_id != chat_id) {
@@ -322,7 +321,7 @@ Bot.on("photo", msg => {
                         msg.reply_to_message.message_id);
                     if (!options.reply_to_message_id) delete options.reply_to_message_id;
                 }
-                options.caption = (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + (photos[0].caption ? photos[0].caption : "");
+                options.caption = (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + (msg.caption ? msg.caption : "");
                 if (options.caption === "") delete options.caption;
                 /*Bot.sendMessage(user_chat_id,
                     (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + msg.text
@@ -333,7 +332,7 @@ Bot.on("photo", msg => {
                 });*/
                 Bot.sendPhoto(
                     user_chat_id,
-                    photo.file_id,
+                    file_id,
                     options
                 );
             }
