@@ -72,7 +72,7 @@ Bot.on("text", msg => {
                     user.msg_count = 0;
                 }
                 if (user.msg_count > limit) {
-                    Bot.sendMessage(chat_id, "ты отправил слишком много сообщений, жди еще " + (+Date.now() - user.timestamp) / 1000 + " секунд");
+                    Bot.sendMessage(chat_id, "ты отправил слишком много сообщений, жди еще " + (user.timestamp + time - Date.now()) / 1000 + " секунд");
                 } else {
                     user.msg_count++;
                     Users.forEach((user_chat_id, current_user) => {
