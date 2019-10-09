@@ -344,6 +344,7 @@ Bot.on("photo", msg => {
                     //console.log(r);
                     current_user.reply_table[r.message_id] = msg.message_id;
                 }).catch(e => {
+                    console.log(e);
                     if (e.body.description === "Forbidden: bot was blocked by the user") {
                         Bot.sendMessage(user_chat_id, "ты заблочил бота, иди нахрен");
                         Users.deleteUser(user_chat_id);
