@@ -343,3 +343,6 @@ Bot.on("photo", msg => {
         });
     }
 });
+Bot.on("error", e => {
+    console.error(e);
+});
