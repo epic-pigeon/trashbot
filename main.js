@@ -79,9 +79,9 @@ Bot.on("text", msg => {
                         if (user_chat_id != chat_id) {
                             let options = {};
                             if (typeof msg.reply_to_message === "object") {
-                                console.log(user.reply_table);
-                                console.log(current_user.reply_table);
-                                console.log(msg.reply_to_message);
+                                //console.log(user.reply_table);
+                                //console.log(current_user.reply_table);
+                                //console.log(msg.reply_to_message);
                                 options.reply_to_message_id = getUserWrapperId(current_user,
                                     user.reply_table[msg.reply_to_message.message_id]
                                 ) || user.reply_table[msg.reply_to_message.message_id] || getUserWrapperId(current_user,
@@ -89,8 +89,8 @@ Bot.on("text", msg => {
                                 if (!options.reply_to_message_id) delete options.reply_to_message_id;
                             }
                             Bot.sendMessage(user_chat_id, msg.text, options).then(r => {
-                                console.log("sent message:");
-                                console.log(r);
+                                //console.log("sent message:");
+                                //console.log(r);
                                 current_user.reply_table[r.message_id] = msg.message_id;
                             });
                         }
