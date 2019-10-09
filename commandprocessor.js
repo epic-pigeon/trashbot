@@ -17,7 +17,7 @@ function CommandProcessor(commands) {
         let rules = [
             {type: "VALUE_NUMBER", regexp: "(\\d+)(\\.\\d+)?"},
             {type: "VALUE_STRING", regexp: "((\"(?:[^\"\\\\]|\\\\.)*\")|('(?:[^'\\\\]|\\\\.)*'))"},
-            {type: "VALUE_BOOLEAN", regexp: "(true|false)"}
+            {type: "VALUE_BOOLEAN", regexp: "((true)|(false))"}
         ];
         let commandNames = [];
         this.commands.forEach(command => {commandNames.push(command.name)});
