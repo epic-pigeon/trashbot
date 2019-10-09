@@ -306,11 +306,8 @@ Bot.on("photo", msg => {
         let chat_id = msg.chat.id;
         let user = Users.getUser(chat_id);
 
-        let photo = msg.photo[0];
-
-        if (msg.photo.length > 1) {
-            Bot.sendMessage(chat_id, "Внимание: только первое фото будет отправлено");
-        }
+        let photos = msg.photo;
+        console.log(photos);
 
         Users.forEach((user_chat_id, current_user) => {
             if (user_chat_id != chat_id) {
@@ -325,7 +322,7 @@ Bot.on("photo", msg => {
                         msg.reply_to_message.message_id);
                     if (!options.reply_to_message_id) delete options.reply_to_message_id;
                 }
-                options.caption = (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + (photo.caption ? photo.caption : "");
+                options.caption = (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + (photos[0].caption ? photos[0].caption : "");
                 if (options.caption === "") delete options.caption;
                 /*Bot.sendMessage(user_chat_id,
                     (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + msg.text
