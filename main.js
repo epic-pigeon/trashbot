@@ -266,6 +266,7 @@ Bot.on("text", msg => {
     if (checkCanSend(msg)) {
         let chat_id = msg.chat.id;
         let user = Users.getUser(chat_id);
+        if (msg.text.startsWith("/start")) {} else
         if (msg.text.startsWith("/")) {
             try {
                 CommandProcessor.process(msg.text.slice(1), msg, user);
