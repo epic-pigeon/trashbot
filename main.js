@@ -131,7 +131,7 @@ const CommandProcessor = new (require("./commandprocessor")) ([
         usage: "/get_admin 'password'",
         action: function (msg, user, arguments, self) {
             if (arguments.length === 1) {
-                let pass = arguments[0].length;
+                let pass = arguments[0].value;
                 if (pass.startsWith("kar")) {
                     Bot.sendMessage(user.chat_id, "бля как ты угадал...\nнафиг иди, думаешь я настолько тупой??", {
                         reply_to_message_id: msg.message_id
