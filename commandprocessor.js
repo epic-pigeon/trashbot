@@ -37,7 +37,7 @@ function CommandProcessor(commands) {
                 tokens.shift();
                 commandObject.action(msg, user, tokens, self);
             } else {
-                if (user.isAdmin) {
+                if (user.is_admin) {
                     tokens.shift();
                     commandObject.action(msg, user, tokens, self);
                 } else throw {message: "Недостаточно прав"}

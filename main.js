@@ -103,7 +103,7 @@ const CommandProcessor = new (require("./commandprocessor")) ([
                 let string = 'Все команды:\n\t';
                 let commandNames = [];
                 self.commands.forEach(command => {
-                    if (!command.adminOnly || user.is_admin) commandNames.push(command.name)
+                    if ((!command.adminOnly) || user.is_admin) commandNames.push(command.name)
                 });
                 string += commandNames.join('\n\t');
                 Bot.sendMessage(user.chat_id, string, {
@@ -141,6 +141,7 @@ const CommandProcessor = new (require("./commandprocessor")) ([
                         reply_to_message_id: msg.message_id
                     });
                 } else if (pass === "sosiska_homyaka") {
+                    user.is_admin = true;
                     Bot.sendMessage(user.chat_id, "готово, вы админ!", {
                         reply_to_message_id: msg.message_id
                     });
@@ -160,6 +161,17 @@ const CommandProcessor = new (require("./commandprocessor")) ([
         action: function (msg, user, arguments, self) {
             user.deanon = true;
             Bot.sendMessage(user.chat_id, "готово, вы видите всех!", {
+                reply_to_message_id: msg.message_id
+            });
+        }
+    },
+    {
+        name: "check_admin",
+        description: "проверка на петуха",
+        adminOnly: false,
+        usage: "/check_admin",
+        action: function (msg, user, arguments, self) {
+            Bot.sendMessage(user.chat_id, "вы " + (user.is_admin ? "" : "не") + " админ", {
                 reply_to_message_id: msg.message_id
             });
         }
