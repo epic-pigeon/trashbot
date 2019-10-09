@@ -5,9 +5,10 @@ const Bot = new TelegramBot(token, {polling: true});
 const limit = 20;
 const time = 60 * 1000;
 
-const version = "0.0.1";
+const version = "0.0.2";
 const patchNotes = Object.freeze({
     "0.0.1": "Первый релиз",
+    "0.0.2": "Добавлен парсер комманд",
 
 });
 
@@ -55,6 +56,41 @@ function getUserWrapperId(user, msg_id) {
 
 Users.loadFile();
 
+const CommandProcessor = new (require("./commandprocessor")) ([
+    {
+        name: "list_members",
+        description: "",
+        adminOnly: false,
+        usage: "/list_members",
+        action: function (msg, user, arguments, self) {
+            let result = "";
+            let i = 1;
+            Users.forEach((chat_id, user) => {
+                result += i + ") " + user.user_data.first_name + " ";
+                if (user.user_data.last_name) result += user.user_data.last_name + " ";
+                if (user.user_data.username) result += "@" + user.user_data.username + " ";
+                result += "\n";
+                i++;
+            });
+            Bot.sendMessage(user.chat_id, result, {
+                reply_to_message_id: msg.message_id
+            });
+        }
+    },
+    {
+        name: "unsub",
+        description: "",
+        adminOnly: false,
+        usage: "/unsub",
+        action: function (msg, user, arguments, self) {
+            Bot.sendMessage(user.chat_id, "ну и иди нафиг(((", {
+                reply_to_message_id: msg.message_id
+            });
+            Users.deleteUser(user.chat_id);
+        }
+    }
+]);
+
 Bot.on("text", msg => {
     let chat_id = msg.chat.id;
 
@@ -63,9 +99,8 @@ Bot.on("text", msg => {
     } else {
         if (Users.hasUser(chat_id)) {
             let user = Users.getUser(chat_id);
-            if (msg.text.startsWith("/unsub")) {
-                Bot.sendMessage(chat_id, "ну и иди нафиг(((");
-                Users.deleteUser(chat_id);
+            if (msg.text.startsWith("/")) {
+                CommandProcessor.process(msg.text, msg, user);
             } else {
                 if (user.timestamp + time < +Date.now()) {
                     user.timestamp = +Date.now();
@@ -103,7 +138,9 @@ Bot.on("text", msg => {
                 Users.addUser(chat_id, {
                     timestamp: +Date.now(),
                     msg_count: 0,
-                    reply_table: {}
+                    reply_table: {},
+                    user_data: msg.chat,
+                    chat_id: chat_id,
                 });
             } else {
                 Bot.sendMessage(chat_id, "Вы либо не подписаны, либо отписались.\nОтправьте /start чтобы подписаться");
