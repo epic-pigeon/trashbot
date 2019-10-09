@@ -75,7 +75,7 @@ function CommandProcessor(commands) {
                 this.position += finalResult[0].length;
                 tokens.push(new Token(finalRule.type, finalResult[0]));
             } else {
-                throw {message: "Unrecognized token"};
+                throw {message: "Неизвестное значение"};
             }
         }
         return tokens;
