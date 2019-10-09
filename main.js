@@ -74,9 +74,10 @@ Bot.on("text", msg => {
                                 console.log(user.reply_table);
                                 console.log(current_user.reply_table);
                                 console.log(msg.reply_to_message);
-                                options.reply_to_message_id = //getUserWrapperId(current_user,
-                                    user.reply_table[msg.reply_to_message.message_id] || msg.reply_to_message.message_id
-                                //);
+                                options.reply_to_message_id = getUserWrapperId(current_user,
+                                    user.reply_table[msg.reply_to_message.message_id]
+                                ) || user.reply_table[msg.reply_to_message.message_id] || getUserWrapperId(current_user,
+                                    msg.reply_to_message.message_id);
                                 if (!options.reply_to_message_id) delete options.reply_to_message_id;
                             }
                             Bot.sendMessage(user_chat_id, msg.text, options).then(r => {
