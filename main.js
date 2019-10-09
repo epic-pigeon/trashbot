@@ -1,6 +1,7 @@
 const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
-const token = "913804810:AAFxSN8NDv43zOSeI8rFIOpa8bYhWfhuNEk";
+const process = require('process');
+const token = (process.argv.length < 3 ? "913804810:AAFxSN8NDv43zOSeI8rFIOpa8bYhWfhuNEk" : process.argv[2]);
 const Bot = new TelegramBot(token, {polling: true});
 const limit = 20;
 const time = 60 * 1000;
@@ -216,54 +217,25 @@ const CommandProcessor = new (require("./commandprocessor")) ([
     }
 ]);
 
-Bot.on("text", msg => {
+function checkCanSend(msg) {
     let chat_id = msg.chat.id;
 
     if (msg.chat.type !== "private") {
         Bot.sendMessage(chat_id, "иди нахрен, только лс");
+        return false;
     } else {
         if (Users.hasUser(chat_id)) {
             let user = Users.getUser(chat_id);
-            if (msg.text.startsWith("/")) {
-                try {
-                    CommandProcessor.process(msg.text.slice(1), msg, user);
-                } catch (e) {
-                    Bot.sendMessage(chat_id, "Ошибка: " + e.message, {
-                        reply_to_message_id: msg.message_id
-                    });
-                }
+            if (user.timestamp + time < +Date.now()) {
+                user.timestamp = +Date.now();
+                user.msg_count = 0;
+            }
+            if (user.msg_count > limit) {
+                Bot.sendMessage(chat_id, "ты отправил слишком много сообщений, жди еще " + (user.timestamp + time - Date.now()) / 1000 + " секунд");
+                return false;
             } else {
-                if (user.timestamp + time < +Date.now()) {
-                    user.timestamp = +Date.now();
-                    user.msg_count = 0;
-                }
-                if (user.msg_count > limit) {
-                    Bot.sendMessage(chat_id, "ты отправил слишком много сообщений, жди еще " + (user.timestamp + time - Date.now()) / 1000 + " секунд");
-                } else {
-                    user.msg_count++;
-                    Users.forEach((user_chat_id, current_user) => {
-                        if (user_chat_id != chat_id) {
-                            let options = {};
-                            if (typeof msg.reply_to_message === "object") {
-                                //console.log(user.reply_table);
-                                //console.log(current_user.reply_table);
-                                //console.log(msg.reply_to_message);
-                                options.reply_to_message_id = getUserWrapperId(current_user,
-                                    user.reply_table[msg.reply_to_message.message_id]
-                                ) || user.reply_table[msg.reply_to_message.message_id] || getUserWrapperId(current_user,
-                                    msg.reply_to_message.message_id);
-                                if (!options.reply_to_message_id) delete options.reply_to_message_id;
-                            }
-                            Bot.sendMessage(user_chat_id,
-                                (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + msg.text
-                                , options).then(r => {
-                                //console.log("sent message:");
-                                //console.log(r);
-                                current_user.reply_table[r.message_id] = msg.message_id;
-                            });
-                        }
-                    });
-                }
+                user.msg_count++;
+                return true;
             }
         } else {
             if (msg.text.startsWith("/start")) {
@@ -280,10 +252,93 @@ Bot.on("text", msg => {
                     if (current_user.new_member_notification) {
                         Bot.sendMessage(user_chat_id, "присоединился новый бомж " + stringFromUser(Users.getUser(chat_id)));
                     }
-                })
+                });
+                return true;
             } else {
                 Bot.sendMessage(chat_id, "Вы либо не подписаны, либо отписались, либо прошло большое обновление.\nОтправьте /start чтобы подписаться");
+                return false;
             }
         }
+    }
+}
+
+Bot.on("text", msg => {
+    if (checkCanSend(msg)) {
+        let chat_id = msg.chat.id;
+        let user = Users.getUser(chat_id);
+        if (msg.text.startsWith("/")) {
+            try {
+                CommandProcessor.process(msg.text.slice(1), msg, user);
+            } catch (e) {
+                Bot.sendMessage(chat_id, "Ошибка: " + e.message, {
+                    reply_to_message_id: msg.message_id
+                });
+            }
+        } else {
+            Users.forEach((user_chat_id, current_user) => {
+                if (user_chat_id != chat_id) {
+                    let options = {};
+                    if (typeof msg.reply_to_message === "object") {
+                        //console.log(user.reply_table);
+                        //console.log(current_user.reply_table);
+                        //console.log(msg.reply_to_message);
+                        options.reply_to_message_id = getUserWrapperId(current_user,
+                            user.reply_table[msg.reply_to_message.message_id]
+                        ) || user.reply_table[msg.reply_to_message.message_id] || getUserWrapperId(current_user,
+                            msg.reply_to_message.message_id);
+                        if (!options.reply_to_message_id) delete options.reply_to_message_id;
+                    }
+                    Bot.sendMessage(user_chat_id,
+                        (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + msg.text
+                        , options).then(r => {
+                        //console.log("sent message:");
+                        //console.log(r);
+                        current_user.reply_table[r.message_id] = msg.message_id;
+                    });
+                }
+            });
+        }
+    }
+});
+Bot.on("photo", msg => {
+    if (checkCanSend(msg)) {
+        let chat_id = msg.chat.id;
+        let user = Users.getUser(chat_id);
+
+        let photo = msg.photo[0];
+
+        if (msg.photo.length > 1) {
+            Bot.sendMessage(chat_id, "Внимание: только первое фото будет отправлено");
+        }
+
+        Users.forEach((user_chat_id, current_user) => {
+            if (user_chat_id != chat_id) {
+                let options = {};
+                if (typeof msg.reply_to_message === "object") {
+                    //console.log(user.reply_table);
+                    //console.log(current_user.reply_table);
+                    //console.log(msg.reply_to_message);
+                    options.reply_to_message_id = getUserWrapperId(current_user,
+                        user.reply_table[msg.reply_to_message.message_id]
+                    ) || user.reply_table[msg.reply_to_message.message_id] || getUserWrapperId(current_user,
+                        msg.reply_to_message.message_id);
+                    if (!options.reply_to_message_id) delete options.reply_to_message_id;
+                }
+                options.caption = (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + (photo.caption ? photo.caption : "");
+                if (options.caption === "") delete options.caption;
+                /*Bot.sendMessage(user_chat_id,
+                    (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + msg.text
+                    , options).then(r => {
+                    //console.log("sent message:");
+                    //console.log(r);
+                    current_user.reply_table[r.message_id] = msg.message_id;
+                });*/
+                Bot.sendPhoto(
+                    user_chat_id,
+                    photo.file_id,
+                    options
+                );
+            }
+        });
     }
 });
