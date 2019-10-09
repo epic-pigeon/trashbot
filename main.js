@@ -1,7 +1,7 @@
 const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
 const process = require('process');
-const token = (process.argv.length < 3 ? "913804810:AAFxSN8NDv43zOSeI8rFIOpa8bYhWfhuNEk" : process.argv[2]);
+const token = (process.argv.length > 2 && process.argv[2] === "test" ? "733814090:AAHqhsI0nUVu593DVxeUOvRNwRLuqJrNIT4" : "913804810:AAFxSN8NDv43zOSeI8rFIOpa8bYhWfhuNEk");
 const Bot = new TelegramBot(token, {polling: true});
 const limit = 20;
 const time = 60 * 1000;
