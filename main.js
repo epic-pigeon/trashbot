@@ -295,6 +295,8 @@ Bot.on("text", msg => {
                         //console.log("sent message:");
                         //console.log(r);
                         current_user.reply_table[r.message_id] = msg.message_id;
+                    }).catch(e => {
+                        console.error(e);
                     });
                 }
             });
@@ -338,11 +340,10 @@ Bot.on("photo", msg => {
                     //console.log("sent message:");
                     //console.log(r);
                     current_user.reply_table[r.message_id] = msg.message_id;
+                }).catch(e => {
+                    console.error(e);
                 });
             }
         });
     }
-});
-Bot.on("error", e => {
-    console.error(e);
 });
