@@ -199,6 +199,20 @@ const CommandProcessor = new (require("./commandprocessor")) ([
                 reply_to_message_id: msg.message_id
             });
         }
+    },
+    {
+        name: "new_member_notification",
+        description: "уведомление о новых бомжах",
+        adminOnly: false,
+        usage: "/new_member_notification true/false",
+        action: function (msg, user, arguments, self) {
+            if (arguments.length === 1) {
+                user.new_member_notification = arguments[0].value;
+                Bot.sendMessage(user.chat_id, "настройки изменены!", {
+                    reply_to_message_id: msg.message_id
+                });
+            }
+        }
     }
 ]);
 
@@ -262,6 +276,11 @@ Bot.on("text", msg => {
                     chat_id: chat_id,
                     is_admin: false,
                 });
+                Users.forEach((user_chat_id, current_user) => {
+                    if (current_user.new_member_notification) {
+                        Bot.sendMessage(user_chat_id, "присоединился новый бомж " + stringFromUser(Users.getUser(chat_id)));
+                    }
+                })
             } else {
                 Bot.sendMessage(chat_id, "Вы либо не подписаны, либо отписались, либо прошло большое обновление.\nОтправьте /start чтобы подписаться");
             }
