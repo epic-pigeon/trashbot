@@ -297,7 +297,7 @@ Bot.on("text", msg => {
                         current_user.reply_table[r.message_id] = msg.message_id;
                     }).catch(e => {
                         //console.log(e);
-                        if (e.response.IncomingMessage.body.description === "Forbidden: bot was blocked by the user") {
+                        if (e.response.body.description === "Forbidden: bot was blocked by the user") {
                             Bot.sendMessage(user_chat_id, "ты заблочил бота, иди нахрен");
                             Users.deleteUser(user_chat_id);
                         }
@@ -346,7 +346,7 @@ Bot.on("photo", msg => {
                     current_user.reply_table[r.message_id] = msg.message_id;
                 }).catch(e => {
                     //console.log(e);
-                    if (e.response.IncomingMessage.body.description === "Forbidden: bot was blocked by the user") {
+                    if (e.response.body.description === "Forbidden: bot was blocked by the user") {
                         Bot.sendMessage(user_chat_id, "ты заблочил бота, иди нахрен");
                         Users.deleteUser(user_chat_id);
                     }
