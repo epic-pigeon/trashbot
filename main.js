@@ -100,7 +100,7 @@ Bot.on("text", msg => {
         if (Users.hasUser(chat_id)) {
             let user = Users.getUser(chat_id);
             if (msg.text.startsWith("/")) {
-                CommandProcessor.process(msg.text, msg, user);
+                CommandProcessor.process(msg.text.slice(1), msg, user);
             } else {
                 if (user.timestamp + time < +Date.now()) {
                     user.timestamp = +Date.now();
