@@ -2,12 +2,19 @@ const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
 const token = "913804810:AAFxSN8NDv43zOSeI8rFIOpa8bYhWfhuNEk";
 const Bot = new TelegramBot(token, {polling: true});
-const limit = 30;
+const limit = 20;
 const time = 60 * 1000;
+
+const version = "0.0.1";
+const patchNotes = Object.freeze({
+    "0.0.1": "Первый релиз",
+
+});
+
 const Users = {
     _users: {},
     _filename: ".user_saves",
-    hasOwnProperty(v) {
+    hasUser(v) {
         return this._users.hasOwnProperty(v);
     },
     addUser(chat_id, obj) {
@@ -54,7 +61,7 @@ Bot.on("text", msg => {
     if (msg.chat.type !== "private") {
         Bot.sendMessage(chat_id, "иди нахрен, только лс");
     } else {
-        if (Users.hasOwnProperty(chat_id)) {
+        if (Users.hasUser(chat_id)) {
             let user = Users.getUser(chat_id);
             if (msg.text.startsWith("/unsub")) {
                 Bot.sendMessage(chat_id, "ну и иди нафиг(((");
@@ -67,6 +74,7 @@ Bot.on("text", msg => {
                 if (user.msg_count > limit) {
                     Bot.sendMessage(chat_id, "ты отправил слишком много сообщений, жди еще " + (+Date.now() - user.timestamp) / 1000 + " секунд");
                 } else {
+                    user.msg_count++;
                     Users.forEach((user_chat_id, current_user) => {
                         if (user_chat_id != chat_id) {
                             let options = {};
