@@ -88,12 +88,12 @@ const CommandProcessor = new (require("./commandprocessor")) ([
         adminOnly: false,
         usage: "/unsub",
         action: function (msg, user, arguments, self) {
-            Bot.sendMessage(user.chat_id, "ну и иди нафиг(((", {
+            Bot.sendMessage(user.chat_id, "не забудь подписаться!", {
                 reply_to_message_id: msg.message_id
             });
             Users.forEach((k_user_chat_id, current_user) => {
                 if (current_user.member_leave_notification) {
-                    Bot.sendMessage(k_user_chat_id, "бомж " + stringFromUser(Users.getUser(user_chat_id)) + " поднялся и покинул Мусорки");
+                    Bot.sendMessage(k_user_chat_id, "бомж " + stringFromUser(user) + " поднялся и покинул Мусорки");
                 }
             });
             Users.deleteUser(user.chat_id);
@@ -178,6 +178,28 @@ const CommandProcessor = new (require("./commandprocessor")) ([
         usage: "/check_admin",
         action: function (msg, user, arguments, self) {
             Bot.sendMessage(user.chat_id, "вы " + (user.is_admin ? "" : "не ") + "админ", {
+                reply_to_message_id: msg.message_id
+            });
+        }
+    },
+    {
+        name: "check_member_leave_notifications",
+        description: "проверка на уведомления",
+        adminOnly: false,
+        usage: "/check_member_leave_notifications",
+        action: function (msg, user, arguments, self) {
+            Bot.sendMessage(user.chat_id, "вы " + (user.member_leave_notification ? "" : "не ") + "получаете уведомления о покидании группы", {
+                reply_to_message_id: msg.message_id
+            });
+        }
+    },
+    {
+        name: "check_new_member_notifications",
+        description: "проверка на уведомления",
+        adminOnly: false,
+        usage: "/check_new_member_notifications",
+        action: function (msg, user, arguments, self) {
+            Bot.sendMessage(user.chat_id, "вы " + (user.new_member_notification ? "" : "не ") + "получаете уведомления о присоединении к группе", {
                 reply_to_message_id: msg.message_id
             });
         }
