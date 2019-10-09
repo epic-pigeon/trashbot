@@ -56,20 +56,24 @@ function getUserWrapperId(user, msg_id) {
 
 Users.loadFile();
 
+function stringFromUser(user) {
+    let result = user.user_data.first_name + " ";
+    if (user.user_data.last_name) result += user.user_data.last_name + " ";
+    if (user.user_data.username) result += "@" + user.user_data.username + " ";
+    return result;
+}
+
 const CommandProcessor = new (require("./commandprocessor")) ([
     {
-        name: "list_members",
-        description: "",
+        name: "members",
+        description: "перечисляет ЧЛЕНОВ ахахвхавхах(все очень плохо)",
         adminOnly: false,
-        usage: "/list_members",
+        usage: "/members",
         action: function (msg, user, arguments, self) {
             let result = "";
             let i = 1;
             Users.forEach((chat_id, user) => {
-                result += i + ") " + user.user_data.first_name + " ";
-                if (user.user_data.last_name) result += user.user_data.last_name + " ";
-                if (user.user_data.username) result += "@" + user.user_data.username + " ";
-                result += "\n";
+                result += i + ") " + stringFromUser(user) + "\n";
                 i++;
             });
             Bot.sendMessage(user.chat_id, result, {
@@ -79,7 +83,7 @@ const CommandProcessor = new (require("./commandprocessor")) ([
     },
     {
         name: "unsub",
-        description: "",
+        description: "раньше было лучше дизлайк отписка",
         adminOnly: false,
         usage: "/unsub",
         action: function (msg, user, arguments, self) {
@@ -87,6 +91,85 @@ const CommandProcessor = new (require("./commandprocessor")) ([
                 reply_to_message_id: msg.message_id
             });
             Users.deleteUser(user.chat_id);
+        }
+    },
+    {
+        name: "help",
+        description: "нахрена тебе помощь по помощи???",
+        adminOnly: false,
+        usage: "/help command?",
+        action: function (msg, user, arguments, self) {
+            if (arguments.length === 0) {
+                let string = 'Все команды:\n\t';
+                let commandNames = [];
+                self.commands.forEach(command => {
+                    if (!command.adminOnly || user.is_admin) commandNames.push(command.name)
+                });
+                string += commandNames.join('\n\t');
+                Bot.sendMessage(user.chat_id, string, {
+                    reply_to_message_id: msg.message_id
+                });
+            } else if (arguments.length > 0) {
+                let command = arguments[0].value;
+                let commandObject = undefined;
+                self.commands.forEach(comm => {
+                    if (comm.name === command.toLowerCase()) commandObject = comm;
+                });
+                if (typeof commandObject === "undefined" || (commandObject.adminOnly && !user.is_admin)) throw {message: "команды \"" + command + "\" не существует"};
+                let string = "Название команды: " + commandObject.name + "\nОписание команды: " + commandObject.description + "\nИспользование: `" + commandObject.usage + "`" + (commandObject.adminOnly ? "\nТолько для админов!" : "");
+                Bot.sendMessage(user.chat_id, string, {
+                    reply_to_message_id: msg.message_id,
+                    parse_type: "markdown"
+                });
+            }
+        }
+    },
+    {
+        name: "get_admin",
+        description: "введите пароль для получения админки",
+        adminOnly: false,
+        usage: "/get_admin 'password'",
+        action: function (msg, user, arguments, self) {
+            if (arguments.length === 1) {
+                let pass = arguments[0].length;
+                if (pass.startsWith("kar")) {
+                    Bot.sendMessage(user.chat_id, "бля как ты угадал...\nнафиг иди, думаешь я настолько тупой??", {
+                        reply_to_message_id: msg.message_id
+                    });
+                } else if (pass === "dima pidor") {
+                    Bot.sendMessage(user.chat_id, "согласен", {
+                        reply_to_message_id: msg.message_id
+                    });
+                } else if (pass === "sosiska_homyaka") {
+                    Bot.sendMessage(user.chat_id, "готово, вы админ!", {
+                        reply_to_message_id: msg.message_id
+                    });
+                }
+            }
+        }
+    },
+    {
+        name: "deanonymize",
+        description: "",
+        adminOnly: true,
+        usage: "/deanonymize",
+        action: function (msg, user, arguments, self) {
+            user.deanon = true;
+            Bot.sendMessage(user.chat_id, "готово, вы видите всех!", {
+                reply_to_message_id: msg.message_id
+            });
+        }
+    },
+    {
+        name: "anonymize",
+        description: "",
+        adminOnly: true,
+        usage: "/anonymize",
+        action: function (msg, user, arguments, self) {
+            user.deanon = false;
+            Bot.sendMessage(user.chat_id, "готово, вы ни о ком не знаете!", {
+                reply_to_message_id: msg.message_id
+            });
         }
     }
 ]);
@@ -129,7 +212,9 @@ Bot.on("text", msg => {
                                     msg.reply_to_message.message_id);
                                 if (!options.reply_to_message_id) delete options.reply_to_message_id;
                             }
-                            Bot.sendMessage(user_chat_id, msg.text, options).then(r => {
+                            Bot.sendMessage(user_chat_id,
+                                (current_user.deanon && current_user.is_admin ? stringFromUser(user) + "\n" : "") + msg.text
+                                , options).then(r => {
                                 //console.log("sent message:");
                                 //console.log(r);
                                 current_user.reply_table[r.message_id] = msg.message_id;
@@ -147,6 +232,7 @@ Bot.on("text", msg => {
                     reply_table: {},
                     user_data: msg.chat,
                     chat_id: chat_id,
+                    is_admin: false,
                 });
             } else {
                 Bot.sendMessage(chat_id, "Вы либо не подписаны, либо отписались, либо прошло большое обновление.\nОтправьте /start чтобы подписаться");
