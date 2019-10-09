@@ -6,11 +6,11 @@ const Bot = new TelegramBot(token, {polling: true});
 const limit = 20;
 const time = 60 * 1000;
 
-const version = "0.0.2";
+const version = "0.0.3";
 const patchNotes = Object.freeze({
     "0.0.1": "Первый релиз",
     "0.0.2": "Добавлен парсер комманд",
-
+    "0.0.3": "Добавлена возможность отправлять фото",
 });
 
 const Users = {
@@ -172,7 +172,7 @@ const CommandProcessor = new (require("./commandprocessor")) ([
         adminOnly: false,
         usage: "/check_admin",
         action: function (msg, user, arguments, self) {
-            Bot.sendMessage(user.chat_id, "вы " + (user.is_admin ? "" : "не") + " админ", {
+            Bot.sendMessage(user.chat_id, "вы " + (user.is_admin ? "" : "не ") + "админ", {
                 reply_to_message_id: msg.message_id
             });
         }
