@@ -144,6 +144,10 @@ const CommandProcessor = new (require("./commandprocessor")) ([
                     Bot.sendMessage(user.chat_id, "готово, вы админ!", {
                         reply_to_message_id: msg.message_id
                     });
+                } else {
+                    Bot.sendMessage(user.chat_id, "неверный пароль: '" + pass + "'", {
+                        reply_to_message_id: msg.message_id
+                    });
                 }
             }
         }
@@ -156,6 +160,18 @@ const CommandProcessor = new (require("./commandprocessor")) ([
         action: function (msg, user, arguments, self) {
             user.deanon = true;
             Bot.sendMessage(user.chat_id, "готово, вы видите всех!", {
+                reply_to_message_id: msg.message_id
+            });
+        }
+    },
+    {
+        name: "disable_admin",
+        description: "",
+        adminOnly: true,
+        usage: "/disable_admin",
+        action: function (msg, user, arguments, self) {
+            user.is_admin = false;
+            Bot.sendMessage(user.chat_id, "готово, вы больше не админ!", {
                 reply_to_message_id: msg.message_id
             });
         }
